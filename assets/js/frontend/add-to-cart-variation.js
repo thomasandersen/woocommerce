@@ -1,5 +1,6 @@
 /*global wc_add_to_cart_variation_params */
 /*global wc_cart_fragments_params */
+/*global console */
 /*!
  * Variations Plugin
  */
@@ -13,6 +14,8 @@
 		var $use_ajax           = $product_variations === false;
 		var $xhr                = false;
 		var $reset_variations   = $form.find( '.reset_variations' );
+
+		var always_show = $form.find( '.single_variation_wrap' ).data( 'always-show' );
 
 		// Unbind any existing events
 		$form.unbind( 'check_variations update_variation_values found_variation' );
@@ -50,7 +53,11 @@
 			});
 			$form.wc_variations_description_update( '' );
 			$form.trigger( 'reset_image' );
-			$form.find( '.single_variation_wrap' ).slideUp( 200 ).trigger( 'hide_variation' );
+
+			if ( ! always_show ) {
+				$form.find( '.single_variation_wrap' ).slideUp( 200 ).trigger( 'hide_variation' );
+			}
+
 		} )
 
 		// Reset product image
@@ -142,7 +149,7 @@
 
 			// added to get around variation image flicker issue
 			$( '.product.has-default-attributes > .images' ).fadeTo( 200, 1 );
-			
+
 			// Custom event for when variation selection has been changed
 			$form.trigger( 'woocommerce_variation_has_changed' );
 		} )
@@ -282,17 +289,19 @@
 			}
 
 			// Show/hide qty & button container
-			if ( hide_qty_button ) {
-				if ( $single_variation_wrap.is( ':visible' ) ) {
-					$form.find( '.variations_button' ).slideUp( 200 );
+			if ( ! always_show ) {
+				if ( hide_qty_button ) {
+					if ( $single_variation_wrap.is( ':visible' ) ) {
+						$form.find( '.variations_button' ).slideUp( 200 );
+					} else {
+						$form.find( '.variations_button' ).hide();
+					}
 				} else {
-					$form.find( '.variations_button' ).hide();
-				}
-			} else {
-				if ( $single_variation_wrap.is( ':visible' ) ) {
-					$form.find( '.variations_button' ).slideDown( 200 );
-				} else {
-					$form.find( '.variations_button' ).show();
+					if ( $single_variation_wrap.is( ':visible' ) ) {
+						$form.find( '.variations_button' ).slideDown( 200 );
+					} else {
+						$form.find( '.variations_button' ).show();
+					}
 				}
 			}
 
@@ -363,7 +372,9 @@
 				}
 
 				if ( ! exclude ) {
-					$form.find( '.single_variation_wrap' ).slideUp( 200 ).trigger( 'hide_variation' );
+					if ( ! always_show ) {
+						$form.find( '.single_variation_wrap' ).slideUp( 200 ).trigger( 'hide_variation' );
+					}
 				}
 			}
 			if ( some_attributes_chosen ) {
